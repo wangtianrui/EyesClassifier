@@ -9,11 +9,11 @@ def inference(images, batch_size, n_classes, name):
     with tf.variable_scope(name) as scope:
         with tf.variable_scope('conv1') as scope:
             weights = tf.get_variable('weights',
-                                      shape=[3, 3, 3, 16],
+                                      shape=[3, 3, 3, 2],
                                       dtype=tf.float32,
                                       initializer=tf.truncated_normal_initializer(stddev=0.1, dtype=tf.float32))
             biases = tf.get_variable('biases',
-                                     shape=[16],
+                                     shape=[2],
                                      dtype=tf.float32,
                                      initializer=tf.constant_initializer(0.1))
             conv = tf.nn.conv2d(images, weights, strides=[1, 1, 1, 1], padding='SAME')
@@ -31,11 +31,11 @@ def inference(images, batch_size, n_classes, name):
         # conv2
         with tf.variable_scope('conv2') as scope:
             weights = tf.get_variable('weights',
-                                      shape=[3, 3, 16, 16],
+                                      shape=[3, 3, 2, 4],
                                       dtype=tf.float32,
                                       initializer=tf.truncated_normal_initializer(stddev=0.1, dtype=tf.float32))
             biases = tf.get_variable('biases',
-                                     shape=[16],
+                                     shape=[4],
                                      dtype=tf.float32,
                                      initializer=tf.constant_initializer(0.1))
             conv = tf.nn.conv2d(norm1, weights, strides=[1, 1, 1, 1], padding='SAME')
@@ -50,6 +50,8 @@ def inference(images, batch_size, n_classes, name):
             pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pooling2')
             # , ksize=[1, 3, 3, 1], strides=[1, 1, 1, 1], padding='SAME', name='pooling2')
             print(pool2)
+
+
 
         # local3
         with tf.variable_scope('local3') as scope:

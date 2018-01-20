@@ -14,18 +14,19 @@ IMG_W = 24
 IMG_H = 24
 BATCH_SIZE = 33
 LEARNING_RATE = 0.0001
-MAX_STEP = 15000
+MAX_STEP = 55000
 CAPACITY = 2000
 # testCifar10 = 'E:/python_programes/datas/cifar10/cifar-10-batches-bin/'
 # TRAIN_PATH = 'F:/Traindata/faceTF/208x208(2).tfrecords'
-TRAIN_PATH = 'F:/Traindata/eyes/eyes.tfrecords'
-TEST_PATH = 'F:/Traindata/eyes/eyestest.tfrecords'
+TRAIN_PATH = 'F:/Traindata/eyes/openANDcloseTrain.tfrecords'
+TEST_PATH = 'F:/Traindata/eyes/openANDclosetest.tfrecords'
 # train_log_dir = 'E:/python_programes/trainRES/face_wide_res/'
-train_log_dir = 'F:/Traindata/eyes/result/'
+train_log_dir = 'F:/Traindata/eyes/close+ANDopenResult/'
 tf.device("/gpu:0")
 
 
 def train():
+
     with tf.name_scope('input'):
         # train_image_batch, train_labels_batch = input.read_cifar10(TRAIN_PATH, batch_size=BATCH_SIZE)
         train_image_batch, train_labels_batch = input.read_and_decode_by_tfrecorder(TRAIN_PATH, BATCH_SIZE)

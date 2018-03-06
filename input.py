@@ -7,6 +7,7 @@ IMG_H = 24
 
 
 def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
+    # 生成队列。该函数后面的参数是一个文件名数组。（可以存放多个文件名，该方法就是将多个文件名进行一个队列化）
     filename_queue = tf.train.string_input_producer([tfrecords_file])
 
     reader = tf.TFRecordReader()
@@ -39,6 +40,7 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
     label_batch = tf.one_hot(label_batch, depth=n_classes)
     label_batch = tf.cast(label_batch, dtype=tf.int32)
     label_batch = tf.reshape(label_batch, [batch_size, n_classes])
+
     return image_batch, label_batch
 
 

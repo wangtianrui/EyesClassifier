@@ -47,7 +47,6 @@ def loss(logits, labels):
     with tf.name_scope('loss') as scope:
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='cross-entropy')
         loss = tf.reduce_mean(cross_entropy, name='loss')
-        tf.summary.scalar(scope + '/loss', loss)
         return loss
 
 

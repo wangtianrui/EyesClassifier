@@ -27,15 +27,15 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
         image_batch, label_batch = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=64,
-            capacity=20000,
-            min_after_dequeue=3000)
+            num_threads=32,
+            capacity=32,
+            min_after_dequeue=5)
     else:
         image_batch, label_batch = tf.train.batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=64,
-            capacity=2000)
+            num_threads=32,
+            capacity=100)
     n_classes = 2
     label_batch = tf.one_hot(label_batch, depth=n_classes)
     label_batch = tf.cast(label_batch, dtype=tf.int32)

@@ -12,16 +12,16 @@ NUM_CLASS = 2
 # IMG_H = 208
 IMG_W = 24
 IMG_H = 24
-BATCH_SIZE = 2
+BATCH_SIZE = 32
 LEARNING_RATE = 0.001
-MAX_STEP = 5000
-CAPACITY = 2000
+MAX_STEP = 50000
 # testCifar10 = 'E:/python_programes/datas/cifar10/cifar-10-batches-bin/'
 # TRAIN_PATH = 'F:/Traindata/faceTF/208x208(2).tfrecords'
-TRAIN_PATH = 'F:/Traindata/eyes/openANDcloseTrain.tfrecords'
+TRAIN_PATH = 'F:/Traindata/eyes/eyes.tfrecords'
 TEST_PATH = 'F:/Traindata/eyes/openANDclosetest.tfrecords'
+TEST_PIC_HOME = "F:/Traindata/eyes/openANDcloseTest/"
 # train_log_dir = 'E:/python_programes/trainRES/face_wide_res/'
-train_log_dir = 'F:/Traindata/eyes/closeANDopenResult/'
+train_log_dir = 'F:/Traindata/eyes/result/'
 
 
 def train():
@@ -47,12 +47,12 @@ def train():
         saver = tf.train.Saver(tf.global_variables())
 
         init = tf.global_variables_initializer()
-        sess = tf.Session()
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.7)
+        sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
         sess.run(init)
 
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-
 
     try:
         for step in np.arange(MAX_STEP):
@@ -78,28 +78,36 @@ def train():
     sess.close()
 
 
-def evaluate():
-    test_size = 33
-    image_batch, label_batch = input.read_and_decode_by_tfrecorder(TEST_PATH, test_size)
-
-    logits = net.inference(image_batch, test_size, NUM_CLASS,name="train")
-
-    accuracy = function.accuracy(logits, label_batch)
-
-    saver = tf.train.Saver()
-
-    with tf.Session() as sess:
-        ckpt = tf.train.get_checkpoint_state(train_log_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(sess, ckpt.model_checkpoint_path)
-            log = sess.run(accuracy)
-            print(log)
-
-        else:
-            print('No checkpoint file found')
-            return
-
 
 # %%
 
-evaluate()
+def load_image():
+    all_classes = []
+    all_images = []
+    all_labels = []
+
+    for i in os.listdir(TEST_PIC_HOME):
+        curren_dir = os.path.join(TEST_PIC_HOME, i)
+        if os.path.isdir(curren_dir):
+            all_classes.append(i)
+            for img in os.listdir(curren_dir):
+                if img.endswith('png') or img.endswith('bmp') or img.endswith('jpg'):
+                    all_images.append(os.path.join(curren_dir, img))
+                    if (i == 'close'):
+                        all_labels.append(0)
+                    if (i == 'open'):
+                        all_labels.append(1)
+        else:
+            print(curren_dir, " doesnt exist")
+
+    return all_classes, all_images, all_labels
+
+def input_map_fn(image_path, label):
+    one_hot = tf.one_hot(label, NUM_CLASS)
+    image_f = tf.read_file(image_path)
+    image_decode = tf.image.decode_image(image_f, channels=3)
+    image_decode = tf.cast(image_decode,dtype=tf.float32)
+    return image_decode, one_hot
+
+
+train()

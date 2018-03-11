@@ -5,7 +5,7 @@ import function
 
 import input
 import cv2
-import net
+import OCnet
 
 NUM_CLASS = 2
 # IMG_W = 208
@@ -31,7 +31,7 @@ def train():
         print(train_image_batch)
         print(train_labels_batch)
 
-        logits = net.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
+        logits = OCnet.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
 
         print(logits)
         loss = function.loss(logits=logits, labels=train_labels_batch)
@@ -39,7 +39,7 @@ def train():
         # accuracy_test = function.accuracy(logits=accuracy_logits, labels=test_labels_batch)
         accuracy_train = function.accuracy(logits=logits, labels=train_labels_batch)
 
-        my_global_step = tf.Variable(0, name='global_step', trainable=False)
+        my_global_step = tf.Variable(0, name='global_step', trainable=True)
         # train_op = function.optimize(loss=loss, learning_rate=LEARNING_RATE, global_step=my_global_step)
         optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE)
         train_op = optimizer.minimize(loss, global_step=my_global_step)

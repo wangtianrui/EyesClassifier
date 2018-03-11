@@ -5,7 +5,7 @@ import tensorflow as tf
 """
 
 
-def inference(images, batch_size, n_classes, name):
+def inference(images, batch_size, n_classes, name="train"):
     with tf.variable_scope(name) as scope:
         with tf.variable_scope('conv1') as scope:
             weights = tf.get_variable('weights',
@@ -77,7 +77,6 @@ def inference(images, batch_size, n_classes, name):
                                      initializer=tf.constant_initializer(0.1))
             local4 = tf.nn.relu(tf.matmul(local3, weights) + biases, name='local4')
 
-
         with tf.variable_scope('softmax_linear') as scope:
             weights = tf.get_variable('softmax_linear',
                                       shape=[192, n_classes],
@@ -90,8 +89,6 @@ def inference(images, batch_size, n_classes, name):
             softmax_linear = tf.add(tf.matmul(local4, weights), biases, name='softmax_linear')
 
     return softmax_linear
-
-
 
 
 def trainning(loss, learning_rate):

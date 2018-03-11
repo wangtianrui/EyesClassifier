@@ -27,8 +27,8 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
         image_batch, label_batch = tf.train.shuffle_batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=32,
-            capacity=32,
+            num_threads=8,
+            capacity=30,
             min_after_dequeue=5)
     else:
         image_batch, label_batch = tf.train.batch(

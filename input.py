@@ -16,13 +16,13 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
         serialized_example,
         features={
             'label': tf.FixedLenFeature([], tf.int64),
-            'image_raw': tf.FixedLenFeature([], tf.string),
+            'image_raw': tf.FixedLenFeature([], tf.string)
         })
     image = tf.decode_raw(img_features['image_raw'], tf.uint8)
-    print(image)
+
     image = tf.reshape(image, [24, 24, 3])
     image = tf.cast(image, tf.float32)
-    label = tf.cast(img_features['label'], tf.int32)
+    label = tf.cast(img_features['label'], tf.int64)
     if shuffle:
         image_batch, label_batch = tf.train.shuffle_batch(
             [image, label],
@@ -34,8 +34,8 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
         image_batch, label_batch = tf.train.batch(
             [image, label],
             batch_size=batch_size,
-            num_threads=32,
-            capacity=100)
+            num_threads=16,
+            capacity=500)
     n_classes = 2
     label_batch = tf.one_hot(label_batch, depth=n_classes)
     label_batch = tf.cast(label_batch, dtype=tf.int32)

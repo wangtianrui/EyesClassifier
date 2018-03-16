@@ -6,6 +6,7 @@ import function
 import input
 import cv2
 import OCnet
+import OCnet2
 
 NUM_CLASS = 2
 # IMG_W = 208
@@ -13,7 +14,7 @@ NUM_CLASS = 2
 IMG_W = 24
 IMG_H = 24
 BATCH_SIZE = 32
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.00005
 MAX_STEP = 10000
 # testCifar10 = 'E:/python_programes/datas/cifar10/cifar-10-batches-bin/'
 # TRAIN_PATH = 'F:/Traindata/faceTF/208x208(2).tfrecords'
@@ -31,16 +32,13 @@ def train():
         print(train_image_batch)
         print(train_labels_batch)
 
-        logits = OCnet.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
+        # logits = OCnet.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
+        logits = OCnet2.inference(train_image_batch, batch_size=BATCH_SIZE, num_class=NUM_CLASS)
 
-        print(logits)
         loss = function.loss(logits=logits, labels=train_labels_batch)
-        # accuracy_logits = net.inference(test_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="test")
-        # accuracy_test = function.accuracy(logits=accuracy_logits, labels=test_labels_batch)
         accuracy_train = function.accuracy(logits=logits, labels=train_labels_batch)
 
         my_global_step = tf.Variable(0, name='global_step', trainable=True)
-        # train_op = function.optimize(loss=loss, learning_rate=LEARNING_RATE, global_step=my_global_step)
         optimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE)
         train_op = optimizer.minimize(loss, global_step=my_global_step)
         saver = tf.train.Saver(tf.global_variables())
@@ -75,7 +73,6 @@ def train():
         coord.request_stop()
     coord.join(threads)
     sess.close()
-
 
 
 # %%

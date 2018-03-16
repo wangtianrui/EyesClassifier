@@ -6,6 +6,46 @@ IMG_W = 24
 IMG_H = 24
 
 
+def read_and_decode_by_tfrecorder_eye(tfrecords_file, batch_size, shuffle=True):
+    # 生成队列。该函数后面的参数是一个文件名数组。（可以存放多个文件名，该方法就是将多个文件名进行一个队列化）
+    filename_queue = tf.train.string_input_producer([tfrecords_file])
+
+    reader = tf.TFRecordReader()
+    _, serialized_example = reader.read(filename_queue)
+    img_features = tf.parse_single_example(
+        serialized_example,
+        features={
+            'label': tf.FixedLenFeature([], tf.int64),
+            'image_raw': tf.FixedLenFeature([], tf.string)
+        })
+    image_raw = tf.decode_raw(img_features['image_raw'], tf.uint8)
+    image_raw = tf.reshape(image_raw, [24, 24, 3])
+    label = tf.cast(img_features['label'], tf.int64)
+    if shuffle:
+        image_batch, label_batch = tf.train.shuffle_batch(
+            [image_raw, label],
+            batch_size=batch_size,
+            num_threads=8,
+            capacity=50,
+            min_after_dequeue=30)
+    else:
+        image_raw, label_batch = tf.train.batch(
+            [image_raw, label],
+            batch_size=batch_size,
+            num_threads=16,
+            capacity=500)
+
+    n_classes = 2
+    label_batch = tf.one_hot(label_batch, depth=n_classes)
+    label_batch = tf.cast(label_batch, dtype=tf.int32)
+    label_batch = tf.reshape(label_batch, [batch_size, n_classes])
+
+    image_batch = tf.cast(image_raw, tf.float32)
+
+    return image_batch, label_batch , image_raw
+    #, image_raw
+
+
 def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
     # 生成队列。该函数后面的参数是一个文件名数组。（可以存放多个文件名，该方法就是将多个文件名进行一个队列化）
     filename_queue = tf.train.string_input_producer([tfrecords_file])
@@ -18,30 +58,31 @@ def read_and_decode_by_tfrecorder(tfrecords_file, batch_size, shuffle=True):
             'label': tf.FixedLenFeature([], tf.int64),
             'image_raw': tf.FixedLenFeature([], tf.string)
         })
-    image = tf.decode_raw(img_features['image_raw'], tf.uint8)
-
-    image = tf.reshape(image, [24, 24, 3])
-    image = tf.cast(image, tf.float32)
+    image_raw = tf.decode_raw(img_features['image_raw'], tf.uint8)
+    image_raw = tf.reshape(image_raw, [24, 24, 3])
+    image_raw = tf.cast(image_raw, tf.float32)
     label = tf.cast(img_features['label'], tf.int64)
     if shuffle:
         image_batch, label_batch = tf.train.shuffle_batch(
-            [image, label],
+            [image_raw, label],
             batch_size=batch_size,
             num_threads=8,
-            capacity=30,
-            min_after_dequeue=5)
+            capacity=50,
+            min_after_dequeue=30)
     else:
         image_batch, label_batch = tf.train.batch(
-            [image, label],
+            [image_raw, label],
             batch_size=batch_size,
             num_threads=16,
             capacity=500)
+
     n_classes = 2
     label_batch = tf.one_hot(label_batch, depth=n_classes)
     label_batch = tf.cast(label_batch, dtype=tf.int32)
     label_batch = tf.reshape(label_batch, [batch_size, n_classes])
 
     return image_batch, label_batch
+    #, image_raw
 
 
 def read_cifar10(data_dir, batch_size, shuffle=False, is_train=False):

@@ -8,16 +8,27 @@ import cv2
 
 CHECKPOINT = 'F:/Traindata/eyes/result/'
 TEST_PATH = "F:/Traindata/eyes/openANDclosetest.tfrecords"
+TEST_BATCH_SIZE = 50
 
 
-def plot_images(images, labels):
-    for image in images:
-        cv2.imshow("test", image)
-        cv2.waitKey(0)
+def plot_images(images, labels, results):
+    # image = tf.cast(images, dtype=tf.uint8)
+    for i in np.arange(0, TEST_BATCH_SIZE):
+        e = i + 1
+        plt.subplot(8, 7, i + 1)
+        plt.axis('off')
+        title = "L:" + str(labels[i]) + " R:" + str(results[i])
+        plt.title(title, fontsize=14)
+        plt.subplots_adjust(hspace=0.5)
+        plt.imshow(images[i])
+    plt.show()
 
 
-image_batch, label_batch = input.read_and_decode_by_tfrecorder(TEST_PATH, 1080, False)
-logits = OCnet.inference(image_batch, 1080, 2, "train")
+image_batch, label_batch, image_raw = input.read_and_decode_by_tfrecorder_eye(TEST_PATH, TEST_BATCH_SIZE, False)
+print(image_raw)
+logits = OCnet.inference(image_batch, TEST_BATCH_SIZE, 2, "train")
+labels = tf.argmax(label_batch, 1)
+results = tf.argmax(logits, 1)
 saver = tf.train.Saver()
 accuracy = function.accuracy(logits, label_batch)
 
@@ -32,9 +43,12 @@ with tf.Session() as sess:
             while not coord.should_stop() and i < 1:
                 # image = sess.run(image_batch)
                 # print(image)
+                image, label, result = sess.run([image_raw, labels, results])
                 log = sess.run(accuracy)
                 # plot_images(image_batch, label_batch)
                 print(log)
+                plot_images(image, label, result)
+
                 i += 1
         except tf.errors.OutOfRangeError:
             print('done!')

@@ -2,7 +2,9 @@ import tensorflow as tf
 import input
 import function
 import ENnet
+import numpy as np
 import os
+import matplotlib.pyplot as plt
 
 TEST_PATH = "F:/Traindata/eyes/eyestest.tfrecords"
 TRAIN_PATH = "F:/Traindata/eyes/eyes.tfrecords"
@@ -10,7 +12,7 @@ TRAIN_PATH = "F:/Traindata/eyes/eyes.tfrecords"
 RESULT_PATH = "F:/Traindata/eyes/result/"
 
 TRAIN_BATCH_SIZE = 23
-TEST_BATCH_SIZE = 2000
+TEST_BATCH_SIZE = 25
 LEARNING_RATE = 0.0001
 NUME_CLASS = 2
 MAX_STEP = 30000
@@ -56,6 +58,8 @@ def eval():
     image_batch, label_batch = input.read_and_decode_by_tfrecorder(TEST_PATH, TEST_BATCH_SIZE, False)
     logits = ENnet.inference(image_batch, TEST_BATCH_SIZE, NUME_CLASS)
     accuracy = function.accuracy(logits, label_batch)
+    labels = tf.argmax(label_batch, 1)
+    results = tf.argmax(logits, 1)
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
@@ -67,6 +71,8 @@ def eval():
             saver.restore(sess, ckpt.model_checkpoint_path)
             try:
                 while not coord.should_stop() and i < 1:
+                    image, label, result = sess.run([image_batch, labels, results])
+                    plot_images(image, label, result)
                     acc = sess.run(accuracy)
                     print("%.4f%%" % acc)
                     i += 1
@@ -76,6 +82,18 @@ def eval():
                 coord.request_stop()
             coord.join(threads=thread)
             sess.close()
+
+
+def plot_images(images, labels, results):
+    #image = tf.cast(images, dtype=tf.uint8)
+    for i in np.arange(0, TEST_BATCH_SIZE):
+        plt.subplot(5, 5, i + 1)
+        plt.axis('off')
+        title = "L:" + str(labels[i]) + " R:" + str(results[i])
+        plt.title(title, fontsize=6)
+        plt.subplots_adjust(top=1.5)
+        plt.imshow(images[i])
+    plt.show()
 
 
 if __name__ == "__main__":

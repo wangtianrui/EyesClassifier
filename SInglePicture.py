@@ -8,10 +8,9 @@ num_class = 2
 CHECKPOINT = "F:/Traindata/eyes/result/"  #
 
 
-def inference():
-    image = tf.ones
+def inference(image): # 1 x 24 x 24 x 3
     logits = OCnet.inference(image, test_batch_size, num_class)
-    result = tf.arg_max(logits, 1)
+    results = tf.arg_max(logits, 1)
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
@@ -25,7 +24,8 @@ def inference():
                 while not coord.should_stop() and i < 1:
                     # image = sess.run(image_batch)
                     # print(image)
-
+                    result = sess.run(results)
+                    print("预测结果是"+result)
                     i += 1
             except tf.errors.OutOfRangeError:
                 print('done!')
@@ -35,4 +35,3 @@ def inference():
             sess.close()
 
 
-if __name__ == "__main__":

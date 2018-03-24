@@ -9,8 +9,7 @@ import OCnet
 import OCnet2
 
 NUM_CLASS = 2
-# IMG_W = 208
-# IMG_H = 208
+
 IMG_W = 24
 IMG_H = 24
 BATCH_SIZE = 32

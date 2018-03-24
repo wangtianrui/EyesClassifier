@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import OCnet
+import cv2
 
 test_batch_size = 1
 num_class = 2
@@ -8,7 +9,7 @@ num_class = 2
 CHECKPOINT = "F:/Traindata/eyes/result/"  #
 
 
-def inference(image): # 1 x 24 x 24 x 3
+def inference(image):  # 1 x 24 x 24 x 3
     logits = OCnet.inference(image, test_batch_size, num_class)
     results = tf.arg_max(logits, 1)
     saver = tf.train.Saver()
@@ -25,7 +26,7 @@ def inference(image): # 1 x 24 x 24 x 3
                     # image = sess.run(image_batch)
                     # print(image)
                     result = sess.run(results)
-                    print("预测结果是"+result)
+                    print("预测结果是", result)
                     i += 1
             except tf.errors.OutOfRangeError:
                 print('done!')
@@ -35,3 +36,8 @@ def inference(image): # 1 x 24 x 24 x 3
             sess.close()
 
 
+if __name__ == "__main__":
+    image = cv2.imread("E:/python_programes/EyesClassifier/test/open.jpg")
+    array = np.array(image, dtype="float32")
+    image = tf.reshape(array, shape=[1, 24, 24, 3])
+    inference(image)

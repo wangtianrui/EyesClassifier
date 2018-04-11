@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-CHECKPOINT = 'F:/Traindata/eyes/result/'
-TEST_PATH = "F:/Traindata/eyes/openANDclosetest.tfrecords"
-TEST_BATCH_SIZE = 50
+CHECKPOINT = 'log'
+TEST_PATH = "data/openANDclosetest.tfrecords"
+TEST_BATCH_SIZE = 1500
 
 
 def plot_images(images, labels, results):
@@ -43,11 +43,13 @@ with tf.Session() as sess:
             while not coord.should_stop() and i < 1:
                 # image = sess.run(image_batch)
                 # print(image)
+                global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
                 image, label, result = sess.run([image_raw, labels, results])
                 log = sess.run(accuracy)
                 # plot_images(image_batch, label_batch)
+                print("模型为:", global_step)
                 print(log)
-                plot_images(image, label, result)
+                #plot_images(image, label, result)
 
                 i += 1
         except tf.errors.OutOfRangeError:

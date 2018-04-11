@@ -13,14 +13,14 @@ NUM_CLASS = 2
 IMG_W = 24
 IMG_H = 24
 BATCH_SIZE = 32
-LEARNING_RATE = 0.00005
-MAX_STEP = 10000
+LEARNING_RATE = 0.0001
+MAX_STEP = 20000
 # testCifar10 = 'E:/python_programes/datas/cifar10/cifar-10-batches-bin/'
 # TRAIN_PATH = 'F:/Traindata/faceTF/208x208(2).tfrecords'
-TRAIN_PATH = 'F:/Traindata/eyes/openANDcloseTrain.tfrecords'
-TEST_PIC_HOME = "F:/Traindata/eyes/openANDcloseTest/"
+TRAIN_PATH = 'data/openANDcloseTrain.tfrecords'
+TEST_PIC_HOME = "data/openANDcloseTest/"
 # train_log_dir = 'E:/python_programes/trainRES/face_wide_res/'
-train_log_dir = 'F:/Traindata/eyes/result/'
+train_log_dir = 'log/'
 
 
 def train():
@@ -31,8 +31,8 @@ def train():
         print(train_image_batch)
         print(train_labels_batch)
 
-        # logits = OCnet.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
-        logits = OCnet2.inference(train_image_batch, batch_size=BATCH_SIZE, num_class=NUM_CLASS)
+        logits = OCnet.inference(train_image_batch, batch_size=BATCH_SIZE, n_classes=NUM_CLASS, name="train")
+        # logits = OCnet2.inference(train_image_batch, batch_size=BATCH_SIZE, num_class=NUM_CLASS)
 
         loss = function.loss(logits=logits, labels=train_labels_batch)
         accuracy_train = function.accuracy(logits=logits, labels=train_labels_batch)
@@ -58,12 +58,12 @@ def train():
 
             _, train_loss, train_accuracy = sess.run([train_op, loss, accuracy_train])
             # print('***** Step: %d, loss: %.4f *****' % (step, train_loss))
-            if (step % 50 == 0) or (step == MAX_STEP):
+            if (step % 50 == 0) or (step == MAX_STEP - 1):
                 print('***** Step: %d, loss: %.4f' % (step, train_loss))
-            if (step % 200 == 0) or (step == MAX_STEP):
+            if (step % 200 == 0) or (step == MAX_STEP - 1):
                 print('***** Step: %d, loss: %.4f,train Set accuracy: %.4f%% *****'
                       % (step, train_loss, train_accuracy))
-            if step % 2000 == 0 or step == MAX_STEP:
+            if step % 2000 == 0 or step == MAX_STEP - 1:
                 checkpoint_path = os.path.join(train_log_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path, global_step=step)
     except tf.errors.OutOfRangeError:
